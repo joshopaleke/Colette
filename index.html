@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Colette® — Editorial</title>
+  <meta name="description" content="Colette — Specialised in art directed content production for high end fashion and lifestyle brands. Working from beautiful Paris.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ============================================
+       DESIGN TOKENS
+       ============================================ */
+    :root {
+      /* Colors */
+      --color-bg: #f8f7f4;
+      --color-text: #1a1a1a;
+      --color-text-muted: #555;
+      --color-border: #1a1a1a;
+      --color-accent: #1a1a1a;
+
+      /* Typography */
+      --font-display: 'Arial', 'Helvetica Neue', Helvetica, sans-serif;
+      --font-mono: 'Fira Mono', 'Courier New', monospace;
+
+      /* Spacing */
+      --gutter: 44px;
+      --gutter-sm: 30px;
+
+      /* Motion — Design Engineer tokens */
+      --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+      --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+      --duration-fast: 150ms;
+      --duration-normal: 300ms;
+      --duration-slow: 600ms;
+      --duration-reveal: 800ms;
+      --stagger-delay: 60ms;
+    }
+
+    /* ============================================
+       RESET & BASE
+       ============================================ */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      font-family: var(--font-display);
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      overflow-x: hidden;
+      line-height: 1.5;
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* ============================================
+       REDUCED MOTION
+       ============================================ */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+      .parallax-layer {
+        transform: none !important;
+      }
+    }
+
+    /* ============================================
+       TEXT REVEAL ANIMATION
+       ============================================ */
+    .reveal {
+      opacity: 0;
+      transform: translateY(18px);
+      transition:
+        opacity var(--duration-reveal) var(--ease-out-expo),
+        transform var(--duration-reveal) var(--ease-out-expo);
+    }
+
+    .reveal.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Staggered children */
+    .reveal-stagger > .reveal:nth-child(1) { transition-delay: 0ms; }
+    .reveal-stagger > .reveal:nth-child(2) { transition-delay: calc(var(--stagger-delay) * 1); }
+    .reveal-stagger > .reveal:nth-child(3) { transition-delay: calc(var(--stagger-delay) * 2); }
+    .reveal-stagger > .reveal:nth-child(4) { transition-delay: calc(var(--stagger-delay) * 3); }
+    .reveal-stagger > .reveal:nth-child(5) { transition-delay: calc(var(--stagger-delay) * 4); }
+    .reveal-stagger > .reveal:nth-child(6) { transition-delay: calc(var(--stagger-delay) * 5); }
+    .reveal-stagger > .reveal:nth-child(7) { transition-delay: calc(var(--stagger-delay) * 6); }
+    .reveal-stagger > .reveal:nth-child(8) { transition-delay: calc(var(--stagger-delay) * 7); }
+
+    /* ============================================
+       LAYOUT — PAGE
+       ============================================ */
+    .page {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 0 var(--gutter);
+      position: relative;
+    }
+
+    /* ============================================
+       HEADER / NAV
+       ============================================ */
+    .header {
+      padding-top: 30px;
+      padding-bottom: 26px;
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      position: relative;
+    }
+
+    .logo {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 36px;
+      letter-spacing: -0.72px;
+      line-height: 1;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .logo sup {
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: 17px;
+      vertical-align: super;
+      margin-left: 2px;
+    }
+
+    .header-tagline {
+      font-family: var(--font-display);
+      font-size: 17px;
+      text-transform: uppercase;
+      line-height: 23px;
+      max-width: 347px;
+      flex-shrink: 0;
+    }
+
+    .header-nav {
+      font-family: var(--font-display);
+      font-size: 17px;
+      text-transform: uppercase;
+      white-space: nowrap;
+      flex-shrink: 0;
+      padding-top: 4px;
+    }
+
+    .header-nav a {
+      position: relative;
+      transition: opacity var(--duration-fast) var(--ease-out-quart);
+    }
+
+    .header-nav a:hover {
+      opacity: 0.6;
+    }
+
+    .header-nav a::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 0;
+      height: 1px;
+      background: var(--color-text);
+      transition: width var(--duration-normal) var(--ease-out-expo);
+    }
+
+    .header-nav a:hover::after {
+      width: 100%;
+    }
+
+    .header-cta {
+      font-family: var(--font-display);
+      font-size: 17px;
+      text-transform: uppercase;
+      white-space: nowrap;
+      flex-shrink: 0;
+      padding-top: 4px;
+      position: relative;
+      cursor: pointer;
+      transition: opacity var(--duration-fast) var(--ease-out-quart);
+    }
+
+    .header-cta:hover {
+      opacity: 0.6;
+    }
+
+    .header-cta::after {
+      content: '';
+      display: block;
+      width: 100%;
+      height: 1px;
+      background: var(--color-border);
+      margin-top: 10px;
+    }
+
+    /* ============================================
+       MONO TEXT — shared editorial text style
+       ============================================ */
+    .mono {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      letter-spacing: 0.48px;
+      text-transform: uppercase;
+      line-height: 1.5;
+      color: var(--color-text);
+    }
+
+    /* ============================================
+       DIVIDER LINES
+       ============================================ */
+    .divider {
+      width: 171px;
+      height: 1px;
+      background: var(--color-border);
+      margin-bottom: 12px;
+    }
+
+    /* ============================================
+       HERO SECTION — Asymmetric collage
+       ============================================ */
+    .hero {
+      position: relative;
+      margin-top: 60px;
+      min-height: 850px;
+    }
+
+    /* Large main image — top left */
+    .hero-image-main {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 72%;
+      height: 492px;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .hero-image-main img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 30%;
+      transition: transform var(--duration-slow) var(--ease-out-expo);
+      will-change: transform;
+    }
+
+    .hero-image-main:hover img {
+      transform: scale(1.10);
+    }
+
+    /* Second image — overlapping, right-center */
+    .hero-image-secondary {
+      position: absolute;
+      top: 310px;
+      left: 34%;
+      width: 62%;
+      height: 529px;
+      overflow: hidden;
+      z-index: 2;
+      cursor: pointer;
+    }
+
+    .hero-image-secondary img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform var(--duration-slow) var(--ease-out-expo);
+      will-change: transform;
+    }
+
+    .hero-image-secondary:hover img {
+      transform: scale(1.10);
+    }
+
+    /* Right text block */
+    .hero-text-right {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 22%;
+      z-index: 3;
+    }
+
+    .hero-text-right .text-block {
+      margin-bottom: 24px;
+    }
+
+    .hero-text-right .text-block p {
+      margin-bottom: 6px;
+    }
+
+    .hero-text-right .text-block p:last-child {
+      margin-bottom: 0;
+    }
+
+    /* Tags list */
+    .tag-list {
+      list-style: none;
+    }
+
+    .tag-list li {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      letter-spacing: 0.48px;
+      text-transform: uppercase;
+      line-height: 1.5;
+      padding: 4px 0;
+      cursor: pointer;
+      transition: opacity var(--duration-fast) var(--ease-out-quart);
+    }
+
+    .tag-list li:hover {
+      opacity: 0.5;
+    }
+
+    /* Left text block — below main image */
+    .hero-text-left {
+      position: absolute;
+      top: 520px;
+      left: 0;
+      width: 33%;
+      z-index: 3;
+    }
+
+    .hero-text-left .text-body {
+      margin-bottom: 24px;
+    }
+
+    /* ============================================
+       BOTTOM GRID — Two images side by side
+       ============================================ */
+    .grid-section {
+      margin-top: 100px;
+      padding-bottom: 80px;
+      display: flex;
+      gap: var(--gutter-sm);
+    }
+
+    .grid-card {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .grid-card-image {
+      width: 100%;
+      height: 470px;
+      overflow: hidden;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .grid-card-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform var(--duration-slow) var(--ease-out-expo);
+      will-change: transform;
+    }
+
+    .grid-card:hover .grid-card-image img {
+      transform: scale(1.12);
+    }
+
+    .grid-card-meta {
+      margin-top: var(--gutter-sm);
+      display: flex;
+      gap: var(--gutter-sm);
+      align-items: flex-start;
+    }
+
+    .grid-card-tags {
+      flex-shrink: 0;
+      width: 171px;
+    }
+
+    .grid-card-tags .divider {
+      margin-bottom: 15px;
+    }
+
+    .grid-card-desc {
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* ============================================
+       PARALLAX WRAPPER
+       ============================================ */
+    .parallax-layer {
+      will-change: transform;
+      transition: transform 0.05s linear;
+    }
+
+    /* ============================================
+       IMAGE GRAIN OVERLAY — editorial texture
+       ============================================ */
+    .hero-image-main::after,
+    .hero-image-secondary::after,
+    .grid-card-image::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: 
+        linear-gradient(
+          180deg,
+          transparent 60%,
+          rgba(0,0,0,0.03) 100%
+        );
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0;
+      transition: opacity var(--duration-normal) var(--ease-out-quart);
+    }
+
+    .hero-image-main:hover::after,
+    .hero-image-secondary:hover::after,
+    .grid-card:hover .grid-card-image::after {
+      opacity: 1;
+    }
+
+    /* ============================================
+       MAGNIFYING LENS — editorial detail
+       ============================================ */
+    .magnify-lens {
+      position: fixed;
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0;
+      border: 2px solid rgba(255, 255, 255, 0.6);
+      box-shadow:
+        0 0 0 1px rgba(0, 0, 0, 0.08),
+        0 8px 32px rgba(0, 0, 0, 0.18),
+        0 2px 8px rgba(0, 0, 0, 0.12),
+        inset 0 0 20px rgba(255, 255, 255, 0.05);
+      background-repeat: no-repeat;
+      transform: translate(-50%, -50%) scale(0.4);
+      transition:
+        opacity var(--duration-normal) var(--ease-out-expo),
+        transform var(--duration-normal) var(--ease-spring);
+      will-change: transform, background-position;
+      /* Subtle glass refraction look */
+      backdrop-filter: none;
+    }
+
+    .magnify-lens.is-active {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    /* Small crosshair at center of lens */
+    .magnify-lens::after {
+      content: '+';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 14px;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.5);
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+      line-height: 1;
+    }
+
+    /* Small dot cursor when NOT on images */
+    .custom-cursor {
+      position: fixed;
+      width: 6px;
+      height: 6px;
+      background: var(--color-text);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      opacity: 0;
+      mix-blend-mode: difference;
+      transition: opacity var(--duration-fast) var(--ease-out-quart);
+      transform: translate(-50%, -50%);
+    }
+
+    .custom-cursor.is-active {
+      opacity: 1;
+    }
+
+    .custom-cursor.is-hidden {
+      opacity: 0;
+    }
+
+    /* ============================================
+       SMOOTH SCROLL INDICATOR
+       ============================================ */
+    .scroll-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 2px;
+      background: var(--color-text);
+      z-index: 9998;
+      transform-origin: left;
+      transform: scaleX(0);
+      transition: none;
+      width: 100%;
+    }
+
+    /* ============================================
+       RESPONSIVE
+       ============================================ */
+    @media (max-width: 1100px) {
+      .header {
+        flex-wrap: wrap;
+        gap: 16px;
+      }
+      .header-tagline {
+        max-width: 280px;
+        font-size: 14px;
+      }
+      .hero-image-main {
+        width: 80%;
+        height: 380px;
+      }
+      .hero-image-secondary {
+        width: 70%;
+        left: 28%;
+        height: 420px;
+        top: 260px;
+      }
+      .hero-text-right {
+        width: 28%;
+      }
+      .hero-text-left {
+        top: 420px;
+        width: 38%;
+      }
+      .hero {
+        min-height: 750px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      :root {
+        --gutter: 24px;
+      }
+
+      .header-nav,
+      .header-tagline {
+        display: none;
+      }
+
+      .header-cta {
+        font-size: 14px;
+      }
+
+      .hero {
+        min-height: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+
+      .hero-image-main,
+      .hero-image-secondary,
+      .hero-text-right,
+      .hero-text-left {
+        position: relative;
+        width: 100%;
+        top: auto;
+        left: auto;
+        right: auto;
+      }
+
+      .hero-image-main {
+        height: 340px;
+      }
+
+      .hero-image-secondary {
+        height: 300px;
+      }
+
+      .grid-section {
+        flex-direction: column;
+        gap: 48px;
+      }
+
+      .grid-card-image {
+        height: 320px;
+      }
+
+      .grid-card-meta {
+        flex-direction: column;
+        gap: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Scroll Progress -->
+  <div class="scroll-progress" id="scrollProgress"></div>
+
+  <!-- Custom Cursor -->
+  <div class="custom-cursor" id="customCursor"></div>
+
+  <!-- Magnifying Lens -->
+  <div class="magnify-lens" id="magnifyLens"></div>
+
+  <div class="page">
+
+    <!-- ====== HEADER ====== -->
+    <header class="header reveal" id="header">
+      <div class="logo">Colette <sup>®</sup></div>
+      <p class="header-tagline">We are specialised in art directed content production for high end fashion and lifestyle brands. Working from beautiful Paris.</p>
+      <nav class="header-nav" id="headerNav">
+        <a href="#work">Work</a>, <a href="#services">Services</a>, <a href="#about">About</a>
+      </nav>
+      <a href="#contact" class="header-cta" id="headerCta">Reach out to us</a>
+    </header>
+
+    <!-- ====== HERO SECTION ====== -->
+    <section class="hero" id="heroSection">
+
+      <!-- Main Image — parallax layer -->
+      <div class="hero-image-main parallax-layer" data-speed="0.08" id="heroImageMain">
+        <img src="assets/image-151.png" alt="Editorial — vintage portrait of a woman walking through a sunlit field" loading="eager">
+      </div>
+
+      <!-- Secondary Image — overlapping, parallax layer at different speed -->
+      <div class="hero-image-secondary parallax-layer" data-speed="-0.05" id="heroImageSecondary">
+        <img src="assets/image-152.png" alt="Editorial — couple sitting on a green hillside under a vivid blue sky" loading="eager">
+      </div>
+
+      <!-- Right Text Column -->
+      <div class="hero-text-right reveal-stagger" id="heroTextRight">
+        <div class="text-block mono reveal">
+          <p>Nostalgia is going to kill us.</p>
+          <p>A classic love romance along the riverbanks covered in graffiti.</p>
+        </div>
+        <div class="text-block mono reveal">
+          <p>This one was not slippery, it's a must do event of love mixed with small juju</p>
+        </div>
+
+        <div class="divider reveal"></div>
+
+        <p class="mono reveal" style="margin-bottom: 14px;">Her Gaze</p>
+
+        <div class="divider reveal"></div>
+
+        <ul class="tag-list reveal-stagger">
+          <li class="reveal">His Feelings</li>
+          <li class="reveal">His Joy</li>
+          <li class="reveal">His Love</li>
+          <li class="reveal">Her Time</li>
+        </ul>
+      </div>
+
+      <!-- Left Text Column — below main image -->
+      <div class="hero-text-left reveal-stagger" id="heroTextLeft">
+        <p class="mono text-body reveal">Coming from the Swiss Alps into Italy, we spent time in Florence before heading south to Naples. It was a bit of shock to the system. Where the Nordics were cold, Italy was hot; Where the Nordics were modern, Italy was ancient.</p>
+
+        <div class="divider reveal"></div>
+
+        <ul class="tag-list reveal-stagger">
+          <li class="reveal">His Feelings</li>
+          <li class="reveal">His Joy</li>
+          <li class="reveal">His Love</li>
+          <li class="reveal">Her Time</li>
+        </ul>
+      </div>
+
+    </section>
+
+    <!-- ====== BOTTOM GRID ====== -->
+    <section class="grid-section" id="gridSection">
+
+      <!-- Card 1 -->
+      <article class="grid-card" id="gridCard1">
+        <div class="grid-card-image parallax-layer" data-speed="0.04">
+          <img src="assets/image-155.png" alt="Editorial — cyclists riding through a sun-dappled forest path" loading="lazy">
+        </div>
+        <div class="grid-card-meta reveal-stagger">
+          <div class="grid-card-tags">
+            <div class="divider reveal"></div>
+            <ul class="tag-list">
+              <li class="mono reveal">Best Friends for Life</li>
+              <li class="mono reveal">Everlasting Joy and Peace</li>
+            </ul>
+          </div>
+          <p class="grid-card-desc mono reveal">This gnarly bank to brick ledge in Shepherd's Bush slid but only after putting a massive dent in my backslide groove.</p>
+        </div>
+      </article>
+
+      <!-- Card 2 -->
+      <article class="grid-card" id="gridCard2">
+        <div class="grid-card-image parallax-layer" data-speed="-0.03">
+          <img src="assets/image-156.png" alt="Editorial — motion-blurred field of golden wildflowers" loading="lazy">
+        </div>
+        <div class="grid-card-meta reveal-stagger">
+          <div class="grid-card-tags">
+            <div class="divider reveal"></div>
+            <ul class="tag-list">
+              <li class="mono reveal">Life Time</li>
+              <li class="mono reveal">Bundle of Joy</li>
+            </ul>
+          </div>
+          <p class="grid-card-desc mono reveal">This gnarly bank to brick ledge in Shepherd's Bush slid but only after putting a massive dent in my backslide groove.</p>
+        </div>
+      </article>
+
+    </section>
+
+  </div>
+
+  <script>
+    /* ==============================================
+       COLETTE EDITORIAL — INTERACTIONS
+       Design Engineer approach: 
+       CSS-first for simple states, JS for parallax 
+       and scroll-driven orchestration.
+       ============================================== */
+
+    (() => {
+      'use strict';
+
+      // ---- RESPECT REDUCED MOTION ----
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // ============================================
+      // 1. TEXT REVEAL — IntersectionObserver
+      // ============================================
+      const revealElements = document.querySelectorAll('.reveal');
+
+      const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            revealObserver.unobserve(entry.target);
+          }
+        });
+      }, {
+        threshold: 0.15,
+        rootMargin: '0px 0px -40px 0px'
+      });
+
+      revealElements.forEach(el => revealObserver.observe(el));
+
+      // ============================================
+      // 2. PARALLAX SCROLLING — requestAnimationFrame
+      // ============================================
+      if (!prefersReducedMotion) {
+        const parallaxLayers = document.querySelectorAll('.parallax-layer');
+        let ticking = false;
+
+        function updateParallax() {
+          const scrollY = window.scrollY;
+
+          parallaxLayers.forEach(layer => {
+            const speed = parseFloat(layer.dataset.speed) || 0;
+            const rect = layer.getBoundingClientRect();
+            const offsetTop = rect.top + scrollY;
+            const viewportCenter = scrollY + window.innerHeight / 2;
+            const distanceFromCenter = viewportCenter - offsetTop - rect.height / 2;
+
+            // Only apply parallax when element is in/near viewport
+            if (rect.top < window.innerHeight + 200 && rect.bottom > -200) {
+              const translateY = distanceFromCenter * speed;
+              layer.style.transform = `translate3d(0, ${translateY}px, 0)`;
+            }
+          });
+
+          ticking = false;
+        }
+
+        window.addEventListener('scroll', () => {
+          if (!ticking) {
+            requestAnimationFrame(updateParallax);
+            ticking = true;
+          }
+        }, { passive: true });
+
+        // Initial call
+        updateParallax();
+      }
+
+      // ============================================
+      // 3. SCROLL PROGRESS BAR
+      // ============================================
+      const scrollProgress = document.getElementById('scrollProgress');
+
+      function updateScrollProgress() {
+        const scrollTop = window.scrollY;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const progress = docHeight > 0 ? scrollTop / docHeight : 0;
+        scrollProgress.style.transform = `scaleX(${progress})`;
+      }
+
+      window.addEventListener('scroll', updateScrollProgress, { passive: true });
+
+      // ============================================
+      // 4. MAGNIFYING LENS + CURSOR
+      // ============================================
+      if (!prefersReducedMotion && window.matchMedia('(pointer: fine)').matches) {
+        const cursor = document.getElementById('customCursor');
+        const lens = document.getElementById('magnifyLens');
+        const LENS_SIZE = 140;
+        const ZOOM = 2.5;
+
+        let cursorX = 0, cursorY = 0;
+        let targetX = 0, targetY = 0;
+        let lensX = 0, lensY = 0;
+        let activeLensTarget = null;
+        let activeLensImg = null;
+
+        // Track mouse globally
+        document.addEventListener('mousemove', (e) => {
+          targetX = e.clientX;
+          targetY = e.clientY;
+          cursor.classList.add('is-active');
+
+          // Update lens background position if active
+          if (activeLensTarget && activeLensImg) {
+            updateLensBackground(e.clientX, e.clientY);
+          }
+        });
+
+        document.addEventListener('mouseleave', () => {
+          cursor.classList.remove('is-active');
+          deactivateLens();
+        });
+
+        // Smooth follow with lerp for both cursor and lens
+        function animateCursor() {
+          const ease = 0.15;
+          const lensEase = 0.18;
+
+          cursorX += (targetX - cursorX) * ease;
+          cursorY += (targetY - cursorY) * ease;
+          cursor.style.left = cursorX + 'px';
+          cursor.style.top = cursorY + 'px';
+
+          lensX += (targetX - lensX) * lensEase;
+          lensY += (targetY - lensY) * lensEase;
+          lens.style.left = lensX + 'px';
+          lens.style.top = lensY + 'px';
+
+          requestAnimationFrame(animateCursor);
+        }
+        animateCursor();
+
+        // Lens background calculation
+        function updateLensBackground(clientX, clientY) {
+          if (!activeLensTarget || !activeLensImg) return;
+
+          const containerRect = activeLensTarget.getBoundingClientRect();
+          const img = activeLensImg;
+
+          // Mouse position relative to the container
+          const relX = clientX - containerRect.left;
+          const relY = clientY - containerRect.top;
+
+          // Percentage position within the container
+          const percX = relX / containerRect.width;
+          const percY = relY / containerRect.height;
+
+          // The background image is scaled to ZOOM * container size
+          const bgWidth = containerRect.width * ZOOM;
+          const bgHeight = containerRect.height * ZOOM;
+
+          // Position the background so the zoomed point is at the center of the lens
+          const bgX = -(percX * bgWidth - LENS_SIZE / 2);
+          const bgY = -(percY * bgHeight - LENS_SIZE / 2);
+
+          lens.style.backgroundSize = `${bgWidth}px ${bgHeight}px`;
+          lens.style.backgroundPosition = `${bgX}px ${bgY}px`;
+        }
+
+        function activateLens(target) {
+          const img = target.querySelector('img');
+          if (!img) return;
+
+          activeLensTarget = target;
+          activeLensImg = img;
+
+          // Set the image as the lens background
+          lens.style.backgroundImage = `url('${img.src}')`;
+
+          // Initial position
+          updateLensBackground(targetX, targetY);
+
+          lens.classList.add('is-active');
+          cursor.classList.add('is-hidden');
+        }
+
+        function deactivateLens() {
+          activeLensTarget = null;
+          activeLensImg = null;
+          lens.classList.remove('is-active');
+          cursor.classList.remove('is-hidden');
+        }
+
+        // Attach to all image containers
+        const lensTargets = document.querySelectorAll('.hero-image-main, .hero-image-secondary, .grid-card-image');
+        lensTargets.forEach(target => {
+          target.addEventListener('mouseenter', () => activateLens(target));
+          target.addEventListener('mouseleave', () => deactivateLens());
+        });
+      }
+
+      // ============================================
+      // 5. INITIAL HEADER ANIMATION — orchestrated
+      // ============================================
+      window.addEventListener('load', () => {
+        // Trigger header reveal immediately
+        const header = document.getElementById('header');
+        if (header) {
+          setTimeout(() => header.classList.add('is-visible'), 100);
+        }
+
+        // Force check for elements already in viewport
+        revealElements.forEach(el => {
+          const rect = el.getBoundingClientRect();
+          if (rect.top < window.innerHeight * 0.85) {
+            el.classList.add('is-visible');
+          }
+        });
+      });
+
+    })();
+  </script>
+
+</body>
+</html>

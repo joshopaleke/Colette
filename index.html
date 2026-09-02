@@ -1358,22 +1358,95 @@
       }
 
       // ============================================
-      // 6. EDITORIAL BOOK FLIPPING LOADER DISMISS
+      // 6. EDITORIAL BOOK FLIPPING LOADER & AUDIO
       // ============================================
       const bookLoader = document.getElementById('bookLoader');
       const loaderBarFill = document.getElementById('loaderBarFill');
 
+      // Realistic Page Flip Sound Synthesizer via Web Audio API (zero external dependencies)
+      let audioCtx = null;
+
+      function playPageFlipSound() {
+        try {
+          if (!audioCtx) {
+            const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContextClass) return;
+            audioCtx = new AudioContextClass();
+          }
+
+          if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+          }
+
+          const now = audioCtx.currentTime;
+          const duration = 0.22;
+          const bufferSize = audioCtx.sampleRate * duration;
+          const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+          const data = buffer.getChannelData(0);
+
+          // Generate filtered textured noise representing crisp paper slide/flip
+          for (let i = 0; i < bufferSize; i++) {
+            const white = Math.random() * 2 - 1;
+            const envelope = Math.sin((i / bufferSize) * Math.PI);
+            data[i] = white * envelope;
+          }
+
+          const noiseSource = audioCtx.createBufferSource();
+          noiseSource.buffer = buffer;
+
+          // Bandpass filter for papery rustle tone
+          const bandpass = audioCtx.createBiquadFilter();
+          bandpass.type = 'bandpass';
+          bandpass.frequency.setValueAtTime(1400, now);
+          bandpass.frequency.exponentialRampToValueAtTime(700, now + duration);
+          bandpass.Q.setValueAtTime(1.8, now);
+
+          // Gain envelope for soft snap
+          const gainNode = audioCtx.createGain();
+          gainNode.gain.setValueAtTime(0.001, now);
+          gainNode.gain.linearRampToValueAtTime(0.18, now + 0.04);
+          gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+          noiseSource.connect(bandpass);
+          bandpass.connect(gainNode);
+          gainNode.connect(audioCtx.destination);
+
+          noiseSource.start(now);
+        } catch (e) {
+          // Audio policy or unsupported
+        }
+      }
+
       function runLoader() {
         if (!bookLoader) return;
 
-        let progress = 0;
-        const interval = setInterval(() => {
-          progress += Math.random() * 22 + 10;
-          if (progress >= 100) {
-            progress = 100;
-            clearInterval(interval);
+        // Try playing page sound periodically in sync with the flipping leaves
+        const soundInterval = setInterval(() => {
+          playPageFlipSound();
+        }, 580);
 
-            if (loaderBarFill) loaderBarFill.style.width = '100%';
+        // Allow click or touch to unlock audio context immediately if blocked by browser policy
+        const unlockAudio = () => {
+          playPageFlipSound();
+          window.removeEventListener('pointerdown', unlockAudio);
+        };
+        window.addEventListener('pointerdown', unlockAudio);
+
+        const startTime = Date.now();
+        const TOTAL_DURATION = 5000; // 5 seconds loading
+
+        const timer = setInterval(() => {
+          const elapsed = Date.now() - startTime;
+          const progress = Math.min(100, (elapsed / TOTAL_DURATION) * 100);
+
+          if (loaderBarFill) {
+            loaderBarFill.style.width = `${progress}%`;
+          }
+
+          if (progress >= 100) {
+            clearInterval(timer);
+            clearInterval(soundInterval);
+            window.removeEventListener('pointerdown', unlockAudio);
 
             // Smooth exit transition for loader
             setTimeout(() => {
@@ -1392,11 +1465,9 @@
                 });
               }, 250);
 
-            }, 600);
-          } else {
-            if (loaderBarFill) loaderBarFill.style.width = `${progress}%`;
+            }, 400);
           }
-        }, 180);
+        }, 30);
       }
 
       window.addEventListener('load', () => {

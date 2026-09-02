@@ -50,7 +50,3 @@ Colette/
 ├── .gitignore
 └── README.md
 ```
-
-## 📄 License
-
-Created as part of the *Josh Becomes an Engineer* editorial design series.

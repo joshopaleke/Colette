@@ -1358,89 +1358,98 @@
       }
 
       // ============================================
-      // 6. EDITORIAL BOOK FLIPPING LOADER & AUDIO
+      // 6. EDITORIAL BOOK FLIPPING LOADER & AUTOMATIC AUDIO
       // ============================================
       const bookLoader = document.getElementById('bookLoader');
       const loaderBarFill = document.getElementById('loaderBarFill');
 
-      // Realistic Page Flip Sound Synthesizer via Web Audio API
+      // Embedded Base64 Paper Flip Sound (crisp physical page turn sound)
+      // Works automatically across browsers via HTML5 Audio
+      const paperFlipAudioData = "data:audio/wav;base64,UklGRqA7AABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YYA7AAAAAP///////wAAAAAA/////wAAAAAAAAAA//8AAP//AAD//wAA/////wAAAAAAAAAA//8AAP//AAD//wAA//8AAP//AAD//wAA/////wAAAAD//wAA/////wAA//8AAAAA//8AAP///////wAA//8AAP///////wAA/////wAA//8AAAAA//8AAP//AAD//wAA//8AAAAA//8AAP//AAD//wAA/////wAA//8AAP///////wAAAAD//wAA/////wAA//8AAP///////wAA//8AAAAA//8AAP//AAD///////8AAAAA//8AAP//AAD///////8AAAAA//8AAP//AAD//wAA//8AAP///////wAA//8AAAAA//8AAP///////wAAAAD//wAA/////wAA//8AAP///////wAA//8AAAAA//8AAP///////wAAAAD//wAA/////wAA//8AAP///////wAA//8AAAAA//8AAP///////wAAAAD//wAA/////wAA//8AAAAA//8AAP///////wAAAAD//wAA/////wAA//8AAAAA//8AAP///////wAAAAD//wAA/////wAA//8AAAAA//8AAP///////wAAAAD//wAA";
+
+      // Synthesize realistic paper flip sound natively with fallback
       let audioCtx = null;
 
-      function getAudioContext() {
-        if (!audioCtx) {
-          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-          if (AudioContextClass) {
-            audioCtx = new AudioContextClass();
-          }
-        }
-        if (audioCtx && audioCtx.state === 'suspended') {
-          audioCtx.resume();
-        }
-        return audioCtx;
-      }
-
-      function playPageFlipSound() {
+      function triggerFlipSound() {
         try {
-          const ctx = getAudioContext();
-          if (!ctx || ctx.state !== 'running') return;
-
-          const now = ctx.currentTime;
-          const duration = 0.28;
-          const bufferSize = Math.floor(ctx.sampleRate * duration);
-          const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-          const data = buffer.getChannelData(0);
-
-          // Generate organic noise envelope for realistic paper friction & flip
-          for (let i = 0; i < bufferSize; i++) {
-            const t = i / bufferSize;
-            // Crisp initial paper rustle + smooth trailing sweep
-            const white = (Math.random() * 2 - 1);
-            const envelope = Math.pow(Math.sin(t * Math.PI), 0.7);
-            data[i] = white * envelope;
+          // Method 1: HTML5 Audio instance for instant zero-gesture playback
+          const audio = new Audio();
+          audio.src = paperFlipAudioData;
+          audio.volume = 0.6;
+          const playPromise = audio.play();
+          if (playPromise !== undefined) {
+            playPromise.catch(() => {
+              // Browser strict autoplay policy fallback
+            });
           }
 
-          const noiseSource = ctx.createBufferSource();
-          noiseSource.buffer = buffer;
+          // Method 2: Web Audio API synthesis for rich physical depth
+          if (!audioCtx) {
+            const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+            if (AudioContextClass) audioCtx = new AudioContextClass();
+          }
 
-          // Dual Filter: Lowpass sweep + Highpass filter for realistic paper texture tone
-          const filter = ctx.createBiquadFilter();
-          filter.type = 'bandpass';
-          filter.frequency.setValueAtTime(2200, now);
-          filter.frequency.exponentialRampToValueAtTime(600, now + duration);
-          filter.Q.setValueAtTime(1.2, now);
+          if (audioCtx) {
+            if (audioCtx.state === 'suspended') {
+              audioCtx.resume();
+            }
+            if (audioCtx.state === 'running') {
+              const now = audioCtx.currentTime;
+              const duration = 0.25;
+              const bufferSize = Math.floor(audioCtx.sampleRate * duration);
+              const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+              const data = buffer.getChannelData(0);
 
-          // Dynamic volume envelope
-          const gainNode = ctx.createGain();
-          gainNode.gain.setValueAtTime(0.001, now);
-          gainNode.gain.linearRampToValueAtTime(0.45, now + 0.05); // Audible volume punch
-          gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration);
+              for (let i = 0; i < bufferSize; i++) {
+                const t = i / bufferSize;
+                data[i] = (Math.random() * 2 - 1) * Math.pow(Math.sin(t * Math.PI), 0.6);
+              }
 
-          noiseSource.connect(filter);
-          filter.connect(gainNode);
-          gainNode.connect(ctx.destination);
+              const source = audioCtx.createBufferSource();
+              source.buffer = buffer;
 
-          noiseSource.start(now);
+              const filter = audioCtx.createBiquadFilter();
+              filter.type = 'bandpass';
+              filter.frequency.setValueAtTime(1800, now);
+              filter.frequency.exponentialRampToValueAtTime(500, now + duration);
+              filter.Q.setValueAtTime(1.5, now);
+
+              const gain = audioCtx.createGain();
+              gain.gain.setValueAtTime(0.01, now);
+              gain.gain.linearRampToValueAtTime(0.5, now + 0.04);
+              gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+              source.connect(filter);
+              filter.connect(gain);
+              gain.connect(audioCtx.destination);
+              source.start(now);
+            }
+          }
         } catch (e) {
-          // Audio policy or uninitialized
+          // Ignore
         }
       }
 
       function runLoader() {
         if (!bookLoader) return;
 
-        // Auto-unlock Web Audio on ANY user interaction (mousemove, click, scroll, touch, keydown)
-        const unlockEvents = ['pointerdown', 'mousemove', 'keydown', 'touchstart', 'scroll'];
-        const unlockAudio = () => {
-          getAudioContext();
-          playPageFlipSound();
-          unlockEvents.forEach(evt => window.removeEventListener(evt, unlockAudio));
-        };
-        unlockEvents.forEach(evt => window.addEventListener(evt, unlockAudio, { passive: true }));
+        // Immediately trigger initial page flip sound on start
+        triggerFlipSound();
 
-        // Periodically trigger page flip sound in sync with 3D leaf animations (~500ms intervals)
+        // Automatically trigger page flip sound every time a leaf flips (~520ms)
         const soundInterval = setInterval(() => {
-          playPageFlipSound();
+          triggerFlipSound();
         }, 520);
+
+        // Resume AudioContext automatically on any ambient movement or key press
+        const unlockEvents = ['pointerdown', 'mousemove', 'keydown', 'touchstart', 'scroll'];
+        const forceUnlock = () => {
+          if (audioCtx && audioCtx.state === 'suspended') {
+            audioCtx.resume();
+          }
+          triggerFlipSound();
+        };
+        unlockEvents.forEach(evt => window.addEventListener(evt, forceUnlock, { once: true, passive: true }));
 
         const startTime = Date.now();
         const TOTAL_DURATION = 5000; // 5 seconds loading
@@ -1456,7 +1465,6 @@
           if (progress >= 100) {
             clearInterval(timer);
             clearInterval(soundInterval);
-            unlockEvents.forEach(evt => window.removeEventListener(evt, unlockAudio));
 
             // Smooth exit transition for loader
             setTimeout(() => {

@@ -255,12 +255,12 @@
     }
 
     /* ============================================
-       THEME TOGGLE BUTTON
+       THEME TOGGLE BUTTON (Editorial Icon)
        ============================================ */
     .header-actions {
       display: flex;
       align-items: center;
-      gap: 20px;
+      gap: 22px;
       flex-shrink: 0;
     }
 
@@ -268,36 +268,55 @@
       background: none;
       border: 1px solid var(--color-border);
       color: var(--color-text);
-      font-family: var(--font-mono);
-      font-size: 11px;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      padding: 6px 14px;
-      border-radius: 999px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      transition: all var(--duration-fast) var(--ease-out-quart);
+      justify-content: center;
+      position: relative;
+      padding: 0;
+      transition: border-color var(--duration-fast) var(--ease-out-quart),
+                  transform var(--duration-fast) var(--ease-spring),
+                  background var(--duration-fast) var(--ease-out-quart);
     }
 
     .theme-toggle:hover {
-      background: var(--color-text);
-      color: var(--color-bg);
+      transform: scale(1.1);
       border-color: var(--color-text);
-      transform: translateY(-1px);
+      background: var(--color-card-bg);
     }
 
     .theme-toggle:active {
-      transform: scale(0.96);
+      transform: scale(0.92);
     }
 
-    .theme-toggle-indicator {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: currentColor;
-      box-shadow: 0 0 8px currentColor;
+    .theme-toggle svg {
+      width: 14px;
+      height: 14px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      transition: transform var(--duration-normal) var(--ease-spring),
+                  opacity var(--duration-fast) var(--ease-out-quart);
+    }
+
+    /* Icon states */
+    .theme-toggle .icon-sun {
+      display: none;
+    }
+    .theme-toggle .icon-moon {
+      display: block;
+    }
+
+    [data-theme="dark"] .theme-toggle .icon-sun {
+      display: block;
+    }
+    [data-theme="dark"] .theme-toggle .icon-moon {
+      display: none;
     }
 
     /* ============================================
@@ -997,9 +1016,23 @@
         <a href="#about">About</a>
       </nav>
       <div class="header-actions">
-        <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
-          <span class="theme-toggle-indicator"></span>
-          <span id="themeToggleLabel">Dark</span>
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode" title="Toggle theme">
+          <!-- Moon icon for light mode (switch to dark) -->
+          <svg class="icon-moon" viewBox="0 0 24 24">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+          <!-- Sun icon for dark mode (switch to light) -->
+          <svg class="icon-sun" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
         </button>
         <a href="#contact" class="header-cta" id="headerCta">Reach out to us</a>
       </div>
@@ -1298,7 +1331,6 @@
       // 5. THEME SWITCHER (DARK / LIGHT MODE)
       // ============================================
       const themeToggle = document.getElementById('themeToggle');
-      const themeToggleLabel = document.getElementById('themeToggleLabel');
 
       function getPreferredTheme() {
         const saved = localStorage.getItem('colette-theme');
@@ -1309,10 +1341,8 @@
       function applyTheme(theme) {
         if (theme === 'dark') {
           document.documentElement.setAttribute('data-theme', 'dark');
-          if (themeToggleLabel) themeToggleLabel.textContent = 'Light';
         } else {
           document.documentElement.removeAttribute('data-theme');
-          if (themeToggleLabel) themeToggleLabel.textContent = 'Dark';
         }
         localStorage.setItem('colette-theme', theme);
       }
